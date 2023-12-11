@@ -1,0 +1,170 @@
+name: create_repo
+
+on:
+  workflow_dispatch:
+   inputs:
+      repoName:
+        type: string
+        description: Name of the new repo.
+        required: true
+      repoType:
+        type: choice
+        required: true
+        default: 'project'
+        options:
+          - project
+          - framework
+      hasDB:
+        type: boolean
+        description: Automated deployment for Databases?
+
+jobs:
+  repo_create:
+    runs-on: ubuntu-latest
+    steps:
+      - name: create_repo
+        id: create_repo
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bromba-noesis/${{ github.event.inputs.repoType }}-template/generate
+          method: "POST"
+          accept: 201
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "name": ${{ github.event.inputs.repoName }}, "include_all_branches": true, "private": false }'
+          log-response: false
+          timeout: 3000
+
+  repo_config:
+    runs-on: ubuntu-latest
+    needs: repo_create
+    steps:
+      - name: set_var
+        id: set_var
+        uses: indiesdev/curl@v1.1
+        if: ${{ github.event.inputs.hasDB == 'true' }}
+        with:
+          url: https://api.github.com/repos/bromba-noesis/${{ github.event.inputs.repoName }}/actions/variables
+          method: "POST"
+          accept: 201
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "name": "HAS_DB", "value": "true" }'
+          log-response: false
+
+      - name: create_dev_env
+        id: create_dev_env
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bromba-noesis/${{ github.event.inputs.repoName }}/environments/Development
+          method: "PUT"
+          accept: 200, 422
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "reviewers":[{"type":"User","id":137196912}], "deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true} }'    # find user id: https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organization-members
+          log-response: false
+    
+      - name: create_qua_env
+        id: create_qua_env
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bromba-noesis/${{ github.event.inputs.repoName }}/environments/Quality
+          method: "PUT"
+          accept: 200, 422
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "reviewers":[{"type":"User","id":137196912}], "deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true} }'    # find user id: https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organization-members
+          log-response: false
+          
+      - name: limit_qua_env_branches
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bromba-noesis/${{ github.event.inputs.repoName }}/environments/Quality/deployment-branch-policies
+          method: "POST"
+          accept: 200, 303, 404
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "name": "release/**", "type": "branch" }'
+
+      - name: limit_qua_env_tags
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bromba-noesis/${{ github.event.inputs.repoName }}/environments/Quality/deployment-branch-policies
+          method: "POST"
+          accept: 200, 303, 404
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "name": "[0-9].[0-9].[0-9]*", "type": "tag" }'
+
+      - name: create_prod_env
+        id: create_prod_env
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bromba-noesis/${{ github.event.inputs.repoName }}/environments/Production
+          method: "PUT"
+          accept: 200, 422
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "reviewers":[{"type":"User","id":137196912}], "deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true} }'    # find user id: https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#list-organization-members
+          log-response: false
+
+      - name: limit_prod_env_tags
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bromba-noesis/${{ github.event.inputs.repoName }}/environments/Production/deployment-branch-policies
+          method: "POST"
+          accept: 200, 303, 404
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "name": "[0-9].[0-9].[0-9]*", "type": "tag" }'
+
+      - name: get_repo_id
+        id: get_repo_id
+        env:
+          GH_TOKEN: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+        run: |
+          repo_id=$(gh repo view bromba-noesis/${{ github.event.inputs.repoName }} --json id --jq '.id')
+          echo "::set-output name=my_repo_id::$repo_id"
+
+      - name: protect_main_branch
+        id: protect_main_branch
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/graphql
+          method: "POST"
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: " \ { \ \"query\": \"mutation CreateBranchProtectionRule($branchProtectionRuleInput: CreateBranchProtectionRuleInput!) { createBranchProtectionRule(input: $branchProtectionRuleInput) { branchProtectionRule  { id } } } \", \"variables\": { \"branchProtectionRuleInput\": { \"repositoryId\": \"${{ steps.get_repo_id.outputs.my_repo_id }}\", \"pattern\": \"main\", \"requiresApprovingReviews\": true, \"requiredApprovingReviewCount\": 1, \"requiresCodeOwnerReviews\": true } } \ } \ "
+          log-response: false
+          timeout: 3000
+
+      - name: protect_development_branch
+        id: protect_development_branch
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/graphql
+          method: "POST"
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: " \ { \ \"query\": \"mutation CreateBranchProtectionRule($branchProtectionRuleInput: CreateBranchProtectionRuleInput!) { createBranchProtectionRule(input: $branchProtectionRuleInput) { branchProtectionRule  { id } } } \", \"variables\": { \"branchProtectionRuleInput\": { \"repositoryId\": \"${{ steps.get_repo_id.outputs.my_repo_id }}\", \"pattern\": \"development\", \"requiresApprovingReviews\": true, \"requiredApprovingReviewCount\": 1, \"requiresCodeOwnerReviews\": true } } \ } \ "
+          log-response: false
+          timeout: 3000
+
+      - name: protect_release_branches
+        id: protect_release_branches
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/graphql
+          method: "POST"
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: " \ { \ \"query\": \"mutation CreateBranchProtectionRule($branchProtectionRuleInput: CreateBranchProtectionRuleInput!) { createBranchProtectionRule(input: $branchProtectionRuleInput) { branchProtectionRule  { id } } } \", \"variables\": { \"branchProtectionRuleInput\": { \"repositoryId\": \"${{ steps.get_repo_id.outputs.my_repo_id }}\", \"pattern\": \"release/**\", \"requiresApprovingReviews\": true, \"requiredApprovingReviewCount\": 1, \"requiresCodeOwnerReviews\": true } } \ } \ "
+          log-response: false
+          timeout: 3000
+
+      - name: protect_tags
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bdsogit-lab/${{ github.event.inputs.repoName }}/tags/protection
+          method: "POST"
+          accept: 201, 403, 404
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "pattern": "[0-9].[0-9].[0-9]*" }'
