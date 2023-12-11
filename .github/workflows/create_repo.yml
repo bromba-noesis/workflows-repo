@@ -31,6 +31,7 @@ jobs:
           accept: 201
           headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
           bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          #body: '{ "owner": "bdsogit-lab", "name": ${{ github.event.inputs.repoName }}, "include_all_branches": true, "private": true }'
           body: '{ "name": ${{ github.event.inputs.repoName }}, "include_all_branches": true, "private": false }'
           log-response: false
           timeout: 3000
