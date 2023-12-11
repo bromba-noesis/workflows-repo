@@ -1,0 +1,61 @@
+name: wiki_project_update
+
+on: 
+    workflow_call:
+      inputs:
+        myEnvironment:
+          required: true
+          type: string
+        myTag:
+          required: true
+          type: string
+    workflow_dispatch:
+      inputs:
+        myEnvironment:
+          required: true
+          type: string
+        myTag:
+          required: true
+          type: string
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup vars
+        id: setup 
+        run: |
+          echo "myDate=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "myHour=$(date +'%H:%M:%S')" >> $GITHUB_OUTPUT
+          echo "myCID=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          echo "myBranch=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+
+      - name: Create wiki pages # in case this is the first deployment
+        run: |
+          # create new wiki home page
+          echo "Deployments by environment:" > Home.md
+          echo "* [Dev](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/Development_Deployments)" >> Home.md
+          echo "* [Qua](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/Quality_Deployments)" >> Home.md
+          echo "* [Prd](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/Production_Deployments)" >> Home.md
+          # create empty page for each environment 
+          echo "-" > Development_Deployments.md
+          echo "-" > Quality_Deployments.md
+          echo "-" > Production_Deployments.md
+      
+      - name: Update environment page
+        uses: DamianReeves/write-file-action@master
+        with:
+          path: ${{ inputs.myEnvironment }}_Deployments.md
+          contents: |
+            | Date | Hour | Commit ID | Branch | Image Tag |
+            |------|------|-----------|--------|-----------|
+            | ${{ steps.setup.outputs.myDate }} | ${{ steps.setup.outputs.myHour }} | ${{ steps.setup.outputs.myCID }} | ${{ steps.setup.outputs.myBranch }} | ${{ inputs.myTag }} |
+          write-mode: overwrite
+
+      - name: Upload to wiki
+        uses: SwiftDocOrg/github-wiki-publish-action@v1
+        with:
+          path: .
+        env:
+          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.BROMBA_NOESIS_PAT2 }}
