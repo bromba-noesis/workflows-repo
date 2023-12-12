@@ -40,7 +40,7 @@ jobs:
           sed -i '1d' ${{ inputs.myVersion }}.md
           
           # delete previous project entry
-          grep -v "[${{ inputs.myRepo }}]" ${{ inputs.myVersion }}.md > tmpfile
+          grep -v "\[${{ inputs.myRepo }}\]" ${{ inputs.myVersion }}.md > tmpfile
           
           # add repo link, environment and date to library version page
           echo "* | [${{ inputs.myRepo }}](https://github.com/bromba-noesis/${{ inputs.myRepo }}/wiki) | ${{ inputs.myEnvironment }} | $(date +'%Y-%m-%d') |" >> tmpfile
