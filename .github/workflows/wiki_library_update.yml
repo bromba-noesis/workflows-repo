@@ -1,0 +1,49 @@
+name: wiki_library_update
+
+on: 
+    workflow_dispatch:
+      inputs:
+        myRepo:
+          required: true
+          type: string
+        myEnvironment:
+          required: true
+          type: string
+        myVersion:
+          required: true
+          type: string
+        
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout_repo.wiki
+        uses: actions/checkout@v3
+        with:
+          repository: '${{ github.repository }}.wiki'
+
+      - name: update_version_page_with_deployment
+        run: |
+          # delete first line
+          sed -i '1d' ${{ inputs.myVersion }}.md
+          
+          # delete previous entry
+          grep -v ${{ inputs.myRepo }} ${{ inputs.myVersion }}.md > tmpfile
+          
+          # add repo link, environment and date to library version page
+          echo "* | [${{ inputs.myRepo }}](https://github.com/bromba-noesis/${{ inputs.myRepo }}/wiki) | ${{ inputs.myEnvironment }} | $(date +'%Y-%m-%d') |" >> tmpfile
+          
+          # sort index
+          grep -v '^[[:space:]]*$' tmpfile | sort > sortedfile
+          mv sortedfile ${{ inputs.myVersion }}.md
+          
+          # add back first line
+          sed -i '1s/^/| Repository | Environment | Date |\n/' ${{ inputs.myVersion }}.md
+
+      - name: upload_pages_to_repo.wiki
+        uses: SwiftDocOrg/github-wiki-publish-action@v1
+        with:
+          path: .
+        env:
+          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.BROMBA_NOESIS_PAT2 }}
