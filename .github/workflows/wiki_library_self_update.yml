@@ -67,10 +67,10 @@ jobs:
           # index page
           echo "Latest deployments by version:" >> Versions.md
           echo "* [${{ inputs.myVersion }}](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/${{ inputs.myVersion }})" >> Versions.md
-          sort -u Versions.md
+          sort Versions.md | uniq -u
           # individual page
           echo "| Repository | Environment | Date |" >> ${{ inputs.myVersion }}.md
-          sort -u ${{ inputs.myVersion }}.md
+          sort ${{ inputs.myVersion }}.md | uniq -u
 
       - name: Upload to wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1
