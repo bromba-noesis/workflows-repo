@@ -50,7 +50,8 @@ jobs:
       - name: Create projects page # in case this is the first deployment
         run: |
           echo "Used by projects: <br/><br/>" >> Projects.md
-          sort -u Projects.md
+          sort -u Projects.md > tmpFile.md
+          mv tmpFile.md Projects.md
       
       - name: Update environment page
         uses: DamianReeves/write-file-action@master
@@ -67,10 +68,12 @@ jobs:
           # index page
           echo "Latest deployments by version: <br/><br/>" >> Versions.md
           echo "* [${{ inputs.myVersion }}](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/${{ inputs.myVersion }})" >> Versions.md
-          sort -u Versions.md
+          sort -u Versions.md > tmpFile.md
+          mv tmpFile.md Versions.md
           # individual page
           echo "| Repository | Environment | Date |" >> ${{ inputs.myVersion }}.md
-          sort -u ${{ inputs.myVersion }}.md
+          sort -u ${{ inputs.myVersion }}.md > tmpFile.md
+          mv tmpFile.md ${{ inputs.myVersion }}.md
 
       - name: Upload to wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1
