@@ -50,7 +50,7 @@ jobs:
       - name: Create projects page # in case this is the first deployment
         run: |
           echo "Used by projects:" >> Projects.md
-          sort -u Projects.md
+          sort Projects.md | uniq Projects.md
       
       - name: Update environment page
         uses: DamianReeves/write-file-action@master
