@@ -43,7 +43,7 @@ jobs:
           echo "* [Qua](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/Quality_Deployments)" >> Home.md
           echo "* [Prd](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/Production_Deployments)" >> Home.md
           echo "***" >> Home.md
-          echo "Latest deployments by [version](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/Versions)" >> Home.md
+          echo "Deployments by [version](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/Versions)" >> Home.md
           echo "***" >> Home.md
           echo "Deployments by [project](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/Projects)" >> Home.md
 
@@ -65,7 +65,7 @@ jobs:
       - name: Update versions pages # index and individual version pages
         run: |
           # index page
-          echo "Deployed versions:" >> Versions.md
+          echo "Latest deployments by version:" >> Versions.md
           echo "* [${{ inputs.myVersion }}](https://github.com/bromba-noesis/${{ github.event.repository.name }}/wiki/${{ inputs.myVersion }})" >> Versions.md
           sort -u Versions.md
           # individual page
