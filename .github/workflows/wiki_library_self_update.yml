@@ -34,7 +34,7 @@ jobs:
       - name: checkout_repo.wiki
         uses: actions/checkout@v3
         with:
-          repository: '${{ github.event.repository.name }}.wiki'
+          repository: 'bromba-noesis/${{ github.event.repository.name }}.wiki'
 
       - name: Create wiki home page # in case this is the first deployment
         run: |
