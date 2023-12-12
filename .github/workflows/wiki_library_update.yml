@@ -1,6 +1,17 @@
 name: wiki_library_update
 
 on: 
+    workflow_call:
+      inputs:
+        myRepo:
+          required: true
+          type: string
+        myEnvironment:
+          required: true
+          type: string
+        myVersion:
+          required: true
+          type: string
     workflow_dispatch:
       inputs:
         myRepo:
