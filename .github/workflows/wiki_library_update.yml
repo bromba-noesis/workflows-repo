@@ -59,6 +59,7 @@ jobs:
 
       - name: update_projects_page2
         run: |
+          echo " " >> Projects.md
           # delete previous project entry
           grep -v "\[${{ inputs.myRepo }}\]" Projects.md > tmpfile
           
