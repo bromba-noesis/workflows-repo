@@ -9,12 +9,18 @@ on:
         myTag:
           required: true
           type: string
+        myLibVersion:
+          required: true
+          type: string
     workflow_dispatch:
       inputs:
         myEnvironment:
           required: true
           type: string
         myTag:
+          required: true
+          type: string
+        myLibVersion:
           required: true
           type: string
 
@@ -43,9 +49,9 @@ jobs:
         with:
           path: ${{ inputs.myEnvironment }}_Deployments.md
           contents: |
-            | Date | Hour | Commit ID | Branch | Image Tag |
-            |------|------|-----------|--------|-----------|
-            | ${{ steps.setup.outputs.myDate }} | ${{ steps.setup.outputs.myHour }} | ${{ steps.setup.outputs.myCID }} | ${{ steps.setup.outputs.myBranch }} | ${{ inputs.myTag }} |
+            | Date | Hour | Commit ID | Branch | Image Tag | Framework Version |
+            |------|------|-----------|--------|-----------| ----------------- |
+            | ${{ steps.setup.outputs.myDate }} | ${{ steps.setup.outputs.myHour }} | ${{ steps.setup.outputs.myCID }} | ${{ steps.setup.outputs.myBranch }} | ${{ inputs.myTag }} | ${{ inputs.myLibVersion }} |
           write-mode: overwrite
 
       - name: Upload to wiki
