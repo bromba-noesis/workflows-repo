@@ -37,7 +37,7 @@ jobs:
       - name: update_specific_version_page
         run: |
           # delete previous project entry
-          grep -v "\[${{ inputs.myRepo }}\] | ${{ inputs.myEnvironment }}" ${{ inputs.myVersion }}.md > tmpfile
+          grep -v "\[${{ inputs.myRepo }}\](https://github.com/bromba-noesis/${{ inputs.myRepo }}/wiki) | ${{ inputs.myEnvironment }}" ${{ inputs.myVersion }}.md > tmpfile
         
           # delete first line
           sed -i '1d' tmpfile
