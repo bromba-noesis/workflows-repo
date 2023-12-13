@@ -60,9 +60,8 @@ jobs:
       - name: update_projects_page2
         run: |
           # delete previous project entry
-          #grep -v "\[${{ inputs.myRepo }}\]" Projects.md > tmpfile
-          mv Projects.md tmpfile
-
+          grep -v "\[${{ inputs.myRepo }}\]" Projects.md > tmpfile
+          
       - name: update_projects_page3
         run: |
           # add repo link
