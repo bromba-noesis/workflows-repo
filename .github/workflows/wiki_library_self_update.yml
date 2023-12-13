@@ -67,9 +67,9 @@ jobs:
         with:
           path: ${{ inputs.myEnvironment }}_Deployments.md
           contents: |
-            | Date | Hour | Commit ID | Branch | Image Tag |
+            | Date | Hour | Commit ID | Branch | Version |
             |------|------|-----------|--------|-----------|
-            | ${{ steps.setup.outputs.myDate }} | ${{ steps.setup.outputs.myHour }} | ${{ steps.setup.outputs.myCID }} | ${{ steps.setup.outputs.myBranch }} | ${{ inputs.myTag }} |
+            | ${{ steps.setup.outputs.myDate }} | ${{ steps.setup.outputs.myHour }} | ${{ steps.setup.outputs.myCID }} | ${{ steps.setup.outputs.myBranch }} | ${{ inputs.myVersion }} |
           write-mode: overwrite
 
       - name: Update versions index page
