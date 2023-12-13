@@ -52,16 +52,15 @@ jobs:
           # add back first line
           sed -i '1s/^/| Repository | Environment | Date |\n/' ${{ inputs.myVersion }}.md
 
+      - name: update_projects_page2
+        run: |
+          # delete previous project entry
+          grep -v "\[${{ inputs.myRepo }}\]" Projects.md > tmpfile
+
       - name: update_projects_page1
         run: |
           # delete first line
-          sed -i '1d' Projects.md
-
-      - name: update_projects_page2
-        run: |
-          echo " " >> Projects.md
-          # delete previous project entry
-          grep -v "\[${{ inputs.myRepo }}\]" Projects.md > tmpfile
+          sed -i '1d' tmpfile
           
       - name: update_projects_page3
         run: |
