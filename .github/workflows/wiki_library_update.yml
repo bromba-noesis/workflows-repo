@@ -61,14 +61,14 @@ jobs:
           grep -v "\[${{ inputs.myRepo }}\]" Projects.md > tmpfile
 
           # add repo link
-          echo "* | [${{ inputs.myRepo }}](https://github.com/bromba-noesis/${{ inputs.myRepo }}/wiki)" >> tmpfile
+          echo "* [${{ inputs.myRepo }}](https://github.com/bromba-noesis/${{ inputs.myRepo }}/wiki)" >> tmpfile
 
           # sort page
           grep -v '^[[:space:]]*$' tmpfile | sort > sortedfile
           mv sortedfile Projects.md
 
           # add back first line
-          sed -i '1s/^/Used by projects:\n/' ${{ inputs.myVersion }}.md
+          sed -i '1s/^/Used by projects:\n/' Projects.md
 
       - name: upload_pages_to_repo.wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1
