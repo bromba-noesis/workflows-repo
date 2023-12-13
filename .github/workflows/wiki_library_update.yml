@@ -36,11 +36,11 @@ jobs:
 
       - name: update_specific_version_page
         run: |
-          # delete first line
-          sed -i '1d' ${{ inputs.myVersion }}.md
-          
           # delete previous project entry
           grep -v "\[${{ inputs.myRepo }}\]" ${{ inputs.myVersion }}.md > tmpfile
+        
+          # delete first line
+          sed -i '1d' tmpfile
           
           # add repo link, environment and date to library version page
           echo "* | [${{ inputs.myRepo }}](https://github.com/bromba-noesis/${{ inputs.myRepo }}/wiki) | ${{ inputs.myEnvironment }} | $(date +'%Y-%m-%d') |" >> tmpfile
@@ -52,29 +52,21 @@ jobs:
           # add back first line
           sed -i '1s/^/| Repository | Environment | Date |\n/' ${{ inputs.myVersion }}.md
 
-      - name: update_projects_page2
+      - name: update_projects_page
         run: |
           # delete previous project entry
           grep -v "\[${{ inputs.myRepo }}\]" Projects.md > tmpfile
 
-      - name: update_projects_page1
-        run: |
           # delete first line
           sed -i '1d' tmpfile
           
-      - name: update_projects_page3
-        run: |
           # add repo link
           echo "* [${{ inputs.myRepo }}](https://github.com/bromba-noesis/${{ inputs.myRepo }}/wiki)" >> tmpfile
 
-      - name: update_projects_page4
-        run: |
           # sort page
           grep -v '^[[:space:]]*$' tmpfile | sort > sortedfile
           mv sortedfile Projects.md
 
-      - name: update_projects_page5
-        run: |
           # add back first line
           sed -i '1s/^/Used by projects:\n/' Projects.md
 
