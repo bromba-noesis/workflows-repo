@@ -55,7 +55,7 @@ jobs:
       - name: Create versions index page # in case this is the first deployment
         if: ${{ hashFiles('Versions.md/') != '' }}
         run: |
-          echo "Latest deployments by version:" > Versions.md
+          echo "Latest project deployments by version:" > Versions.md
 
       - name: Create specific version page # in case this is the first deployment
         if: ${{ hashFiles('${{ inputs.myVersion }}.md/') != '' }}
@@ -88,7 +88,7 @@ jobs:
           mv sortedfile Versions.md
           
           # add back first line
-          sed -i '1s/^/Latest deployments by version:\n/' Versions.md
+          sed -i '1s/^/Latest project deployments by version:\n/' Versions.md
 
       - name: Upload to wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1
