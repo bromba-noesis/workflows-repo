@@ -34,7 +34,7 @@ jobs:
         with:
           repository: '${{ github.repository }}.wiki'
 
-      - name: update_version_page_with_deployment
+      - name: update_specific_version_page
         run: |
           # delete first line
           sed -i '1d' ${{ inputs.myVersion }}.md
@@ -51,6 +51,24 @@ jobs:
           
           # add back first line
           sed -i '1s/^/| Repository | Environment | Date |\n/' ${{ inputs.myVersion }}.md
+
+      - name: update_projects_page
+        run: |
+          # delete first line
+          sed -i '1d' Projects.md
+
+          # delete previous project entry
+          grep -v "\[${{ inputs.myRepo }}\]" Projects.md > tmpfile
+
+          # add repo link
+          echo "* | [${{ inputs.myRepo }}](https://github.com/bromba-noesis/${{ inputs.myRepo }}/wiki)" >> tmpfile
+
+          # sort page
+          grep -v '^[[:space:]]*$' tmpfile | sort > sortedfile
+          mv sortedfile Projects.md
+
+          # add back first line
+          sed -i '1s/^/Used by projects:\n/' ${{ inputs.myVersion }}.md
 
       - name: upload_pages_to_repo.wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1
