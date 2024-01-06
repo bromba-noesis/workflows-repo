@@ -2,10 +2,13 @@ name: xml_values
 
 on: 
     workflow_call:
-    workflow_dispatch:
+      outputs:
+        libGroup: ${{ jobs.get-xml-values.outputs.libGroup-output }}
+        libArtifact: ${{ jobs.get-xml-values.outputs.libArtifact-output }}
+        libVersion: ${{ jobs.get-xml-values.outputs.libVersion-output }}
         
 jobs:
-  get-values:
+  get-xml-values:
     runs-on: windows-latest
     outputs:
         libGroup-output: ${{ steps.values.outputs.libGroup }}
