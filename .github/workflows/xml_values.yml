@@ -3,9 +3,12 @@ name: xml_values
 on: 
     workflow_call:
       outputs:
-        libGroup: ${{ jobs.get-xml-values.outputs.libGroup-output }}
-        libArtifact: ${{ jobs.get-xml-values.outputs.libArtifact-output }}
-        libVersion: ${{ jobs.get-xml-values.outputs.libVersion-output }}
+        libGroup: 
+          value: ${{ jobs.get-xml-values.outputs.libGroup-output }}
+        libArtifact:
+          value: ${{ jobs.get-xml-values.outputs.libArtifact-output }}
+        libVersion:
+          value: ${{ jobs.get-xml-values.outputs.libVersion-output }}
         
 jobs:
   get-xml-values:
