@@ -1,0 +1,36 @@
+name: xml_values
+
+on: 
+    workflow_call:
+    workflow_dispatch:
+        
+jobs:
+  get-values:
+    runs-on: windows-latest
+    outputs:
+        libGroup-output: ${{ steps.values.outputs.libGroup }}
+        libArtifact-output: ${{ steps.values.outputs.libArtifact }}
+        libVersion-output: ${{ steps.values.outputs.libVersion }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: 'pom.xml'
+    
+      - name: values 
+        id: values
+        shell: pwsh
+        run: |
+          $x = [xml](gc pom.xml)
+
+          $lgrp = $x.project.parent.groupId | fl | Out-String
+          echo $lgrp
+
+          $lart = $x.project.parent.artifactId | fl | Out-String
+          echo $lart
+          
+          $lver = $x.project.parent.version | fl | Out-String
+          echo $lver
+
+          echo "libGroup=$lgrp" >> $Env:GITHUB_OUTPUT
+          echo "libArtifact=$lart" >> $Env:GITHUB_OUTPUT
+          echo "libVersion=$lver" >> $Env:GITHUB_OUTPUT
