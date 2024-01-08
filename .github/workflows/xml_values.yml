@@ -3,6 +3,8 @@ name: xml_values
 on: 
     workflow_call:
       outputs:
+        projVersion: 
+          value: ${{ jobs.get-xml-values.outputs.projVersion-output }}
         libGroup: 
           value: ${{ jobs.get-xml-values.outputs.libGroup-output }}
         libArtifact:
@@ -14,6 +16,7 @@ jobs:
   get-xml-values:
     runs-on: windows-latest
     outputs:
+        projVersion-output: ${{ steps.values.outputs.projVersion }}
         libGroup-output: ${{ steps.values.outputs.libGroup }}
         libArtifact-output: ${{ steps.values.outputs.libArtifact }}
         libVersion-output: ${{ steps.values.outputs.libVersion }}
@@ -28,6 +31,9 @@ jobs:
         run: |
           $x = [xml](gc pom.xml)
 
+          $pvrs = $x.project.properties.revision | fl | Out-String
+          echo $lgrp
+
           $lgrp = $x.project.parent.groupId | fl | Out-String
           echo $lgrp
 
@@ -37,6 +43,7 @@ jobs:
           $lver = $x.project.parent.version | fl | Out-String
           echo $lver
 
+          echo "projVersion=$pvrs" >> $Env:GITHUB_OUTPUT
           echo "libGroup=$lgrp" >> $Env:GITHUB_OUTPUT
           echo "libArtifact=$lart" >> $Env:GITHUB_OUTPUT
           echo "libVersion=$lver" >> $Env:GITHUB_OUTPUT
