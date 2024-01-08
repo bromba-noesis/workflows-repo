@@ -32,7 +32,7 @@ jobs:
           $x = [xml](gc pom.xml)
 
           $pvrs = $x.project.properties.revision | fl | Out-String
-          echo $lgrp
+          echo $pvrs
 
           $lgrp = $x.project.parent.groupId | fl | Out-String
           echo $lgrp
