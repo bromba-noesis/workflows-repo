@@ -1,0 +1,28 @@
+name: xml_dotnet_values
+
+on: 
+    workflow_call:
+      outputs:
+        libVersion:
+          value: ${{ jobs.get-xml-values.outputs.libVersion-output }}
+        
+jobs:
+  get-xml-values:
+    runs-on: windows-latest
+    outputs:
+        libVersion-output: ${{ steps.values.outputs.libVersion }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: 'Novobanco.Services/Novobanco.Services.csproj'
+    
+      - name: values 
+        id: values
+        shell: pwsh
+        run: |
+          $x = [xml](gc Novobanco.Services.csproj)
+
+          $lver = $x.project.ItemGroup.PackageReference | fl | Out-String
+          echo $lver
+
+          echo "libVersion=$lver" >> $Env:GITHUB_OUTPUT
