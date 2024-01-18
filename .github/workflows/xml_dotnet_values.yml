@@ -23,6 +23,9 @@ jobs:
           $x = [xml](gc Novobanco.Services.csproj)
 
           $lver = $x.SelectNodes("//PackageReference/@Version").Value
-          echo $lver
 
-          echo "libVersion=$lver" >> $Env:GITHUB_OUTPUT
+          $lver1 = $lver | Get-Content -TotalCount 1
+          
+          echo $lver1
+
+          echo "libVersion=$lver1" >> $Env:GITHUB_OUTPUT
