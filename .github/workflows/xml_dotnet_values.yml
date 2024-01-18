@@ -24,7 +24,7 @@ jobs:
 
           $lver = $x.SelectNodes("//PackageReference/@Version").Value
 
-          $lver1 = $lver | Get-Content -TotalCount 1
+          $lver1 = $lver -split '\n' | Select-Object -First 1
           
           echo $lver1
 
