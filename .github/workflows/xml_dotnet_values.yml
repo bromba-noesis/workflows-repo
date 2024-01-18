@@ -22,7 +22,7 @@ jobs:
         run: |
           $x = [xml](gc Novobanco.Services.csproj)
 
-          $lver = $x.project.ItemGroup.PackageReference.Include="NB.Omc.xIT" | fl | Out-String
+          $lver = $x.project.ItemGroup.PackageReference | fl | Out-String
           echo $lver
 
           echo "libVersion=$lver" >> $Env:GITHUB_OUTPUT
